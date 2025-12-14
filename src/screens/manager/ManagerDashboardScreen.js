@@ -11,8 +11,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
+import { useTheme } from '../../context/ThemeContext';
 
 const ManagerDashboardScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const [userName, setUserName] = useState('');
 
     useEffect(() => {
@@ -31,7 +33,7 @@ const ManagerDashboardScreen = ({ navigation }) => {
 
     const ActionCard = ({ title, subtitle, icon, color, onPress }) => (
         <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, { backgroundColor: theme.cardBackground }]}
             onPress={onPress}
             activeOpacity={0.9}
         >
@@ -39,43 +41,43 @@ const ManagerDashboardScreen = ({ navigation }) => {
                 <Ionicons name={icon} size={28} color={color} />
             </View>
             <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{title}</Text>
-                <Text style={styles.cardSubtitle}>{subtitle}</Text>
+                <Text style={[styles.cardTitle, { color: theme.text }]}>{title}</Text>
+                <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>{subtitle}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color={theme.textTertiary} />
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <StatusBar barStyle="dark-content" />
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <View>
-                    <Text style={styles.greeting}>Welcome,</Text>
-                    <Text style={styles.nameText}>{userName} (Manager)</Text>
+                    <Text style={[styles.greeting, { color: theme.textSecondary }]}>Welcome,</Text>
+                    <Text style={[styles.nameText, { color: theme.text }]}>{userName} (Manager)</Text>
                 </View>
                 <TouchableOpacity
                     style={styles.profileButton}
                     onPress={handleLogout}
                 >
-                    <Ionicons name="log-out-outline" size={24} color="#1A1A1A" />
+                    <Ionicons name="log-out-outline" size={24} color={theme.text} />
                 </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                <View style={styles.statsContainer}>
+                <View style={[styles.statsContainer, { backgroundColor: theme.cardBackground }]}>
                     <View style={styles.statBox}>
-                        <Text style={[styles.statNumber, { color: '#007AFF' }]}>--</Text>
-                        <Text style={styles.statLabel}>Open</Text>
+                        <Text style={[styles.statNumber, { color: theme.primary }]}>--</Text>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Open</Text>
                     </View>
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
                     <View style={styles.statBox}>
-                        <Text style={[styles.statNumber, { color: '#FF9500' }]}>--</Text>
-                        <Text style={styles.statLabel}>In Progress</Text>
+                        <Text style={[styles.statNumber, { color: theme.warning }]}>--</Text>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>In Progress</Text>
                     </View>
                 </View>
 
-                <Text style={styles.sectionTitle}>Management Console</Text>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>Management Console</Text>
                 <View style={styles.cardsContainer}>
                     <ActionCard
                         title="Manage All Issues"
@@ -117,7 +119,6 @@ const ManagerDashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -125,19 +126,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     greeting: {
         fontSize: 14,
-        color: '#666',
         marginBottom: 4,
     },
     nameText: {
         fontSize: 20,
         fontWeight: '700',
-        color: '#1A1A1A',
     },
     profileButton: {
         padding: 8,
@@ -147,7 +144,6 @@ const styles = StyleSheet.create({
     },
     statsContainer: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
         borderRadius: 20,
         padding: 20,
         marginBottom: 32,
@@ -164,7 +160,6 @@ const styles = StyleSheet.create({
     divider: {
         width: 1,
         height: '80%',
-        backgroundColor: '#E5E5EA',
         alignSelf: 'center',
     },
     statNumber: {
@@ -174,13 +169,11 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: 12,
-        color: '#8E8E93',
         fontWeight: '500',
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 16,
     },
     cardsContainer: {
@@ -189,7 +182,6 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
         borderRadius: 16,
         padding: 20,
         shadowColor: '#000',
@@ -212,12 +204,10 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     cardSubtitle: {
         fontSize: 13,
-        color: '#8E8E93',
     },
 });
 

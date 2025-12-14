@@ -4,10 +4,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { db, auth } from '../config/firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { useTheme } from '../context/ThemeContext';
 
 const NotificationsScreen = ({ navigation }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
+    const { theme } = useTheme();
 
     useEffect(() => {
         if (!auth.currentUser) return;
@@ -34,18 +36,18 @@ const NotificationsScreen = ({ navigation }) => {
     }, []);
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={[styles.card, { backgroundColor: theme.cardBackground }]}>
             <View style={styles.iconContainer}>
                 <Ionicons
                     name={item.type === 'status_update' ? 'alert-circle' : 'chatbubble'}
                     size={24}
-                    color={item.type === 'status_update' ? '#FF9500' : '#007AFF'}
+                    color={item.type === 'status_update' ? theme.warning : theme.primary}
                 />
             </View>
             <View style={styles.content}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.body}>{item.body}</Text>
-                <Text style={styles.date}>
+                <Text style={[styles.title, { color: theme.text }]}>{item.title}</Text>
+                <Text style={[styles.body, { color: theme.textSecondary }]}>{item.body}</Text>
+                <Text style={[styles.date, { color: theme.textTertiary }]}>
                     {new Date(item.createdAt).toLocaleString()}
                 </Text>
             </View>
@@ -53,22 +55,22 @@ const NotificationsScreen = ({ navigation }) => {
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="arrow-back" size={24} color={theme.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Notifications</Text>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Notifications</Text>
             </View>
 
             {loading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color="#007AFF" />
+                    <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             ) : notifications.length === 0 ? (
                 <View style={styles.center}>
-                    <Ionicons name="notifications-off-outline" size={64} color="#CCC" />
-                    <Text style={styles.emptyText}>No notifications yet</Text>
+                    <Ionicons name="notifications-off-outline" size={64} color={theme.textTertiary} />
+                    <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No notifications yet</Text>
                 </View>
             ) : (
                 <FlatList
@@ -85,15 +87,12 @@ const NotificationsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 20,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     backButton: {
         marginRight: 15,
@@ -101,14 +100,12 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#1A1A1A',
     },
     list: {
         padding: 16,
     },
     card: {
         flexDirection: 'row',
-        backgroundColor: '#FFF',
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
@@ -128,17 +125,14 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     body: {
         fontSize: 14,
-        color: '#666',
         marginBottom: 8,
     },
     date: {
         fontSize: 12,
-        color: '#999',
     },
     center: {
         flex: 1,
@@ -148,7 +142,6 @@ const styles = StyleSheet.create({
     emptyText: {
         marginTop: 16,
         fontSize: 16,
-        color: '#999',
     }
 });
 

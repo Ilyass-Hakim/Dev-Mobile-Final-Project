@@ -12,8 +12,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { UserService } from '../../services/UserService';
 import { auth } from '../../config/firebase';
+import { useTheme } from '../../context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 
 const UserManagementScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -69,10 +72,10 @@ const UserManagementScreen = ({ navigation }) => {
     };
 
     const renderItem = ({ item }) => (
-        <View style={styles.card}>
+        <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
             <View style={styles.userInfo}>
-                <Text style={styles.name}>{item.fullName || 'Unknown Name'}</Text>
-                <Text style={styles.email}>{item.email}</Text>
+                <Text style={[styles.name, { color: theme.text }]}>{item.fullName || 'Unknown Name'}</Text>
+                <Text style={[styles.email, { color: theme.textSecondary }]}>{item.email}</Text>
                 <View style={[
                     styles.roleBadge,
                     userDataStyle(item.role).badge
@@ -86,10 +89,10 @@ const UserManagementScreen = ({ navigation }) => {
                 </View>
             </View>
 
-            <View style={styles.actions}>
+            <View style={[styles.actions, { borderTopColor: theme.border }]}>
                 {item.role !== 'admin' && ( // Don't allow demoting other admins easily for now
                     <TouchableOpacity
-                        style={styles.actionButton}
+                        style={[styles.actionButton, { backgroundColor: theme.primary }]}
                         onPress={() => handleUpdateRole(item.id, item.role, item.fullName)}
                     >
                         <Text style={styles.actionButtonText}>
@@ -110,18 +113,19 @@ const UserManagementScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+                    <Ionicons name="arrow-back" size={24} color={theme.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>User Management</Text>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>User Management</Text>
                 <View style={{ width: 40 }} />
             </View>
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#007AFF" />
+                    <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             ) : (
                 <FlatList
@@ -138,7 +142,6 @@ const UserManagementScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -146,9 +149,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     backButton: {
         padding: 8,
@@ -156,7 +157,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
     },
     loadingContainer: {
         flex: 1,
@@ -167,7 +167,6 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     card: {
-        backgroundColor: '#FFF',
         borderRadius: 16,
         padding: 16,
         marginBottom: 16,
@@ -183,12 +182,10 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     email: {
         fontSize: 14,
-        color: '#666',
         marginBottom: 8,
     },
     roleBadge: {
@@ -204,14 +201,12 @@ const styles = StyleSheet.create({
     },
     actions: {
         borderTopWidth: 1,
-        borderTopColor: '#F0F0F0',
         paddingTop: 12,
         alignItems: 'flex-end',
     },
     actionButton: {
         paddingVertical: 8,
         paddingHorizontal: 16,
-        backgroundColor: '#007AFF',
         borderRadius: 8,
     },
     actionButtonText: {

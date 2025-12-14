@@ -19,6 +19,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { IssueService } from '../../services/IssueService';
 import { auth } from '../../config/firebase';
+import { useTheme } from '../../context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 
 const CATEGORIES = [
     { id: 'maintenance', label: 'Maintenance', icon: 'construct' },
@@ -50,14 +52,14 @@ const EXPECTED_RESULT_OPTIONS = [
 ];
 
 // Simple Modal Picker Component
-const CustomPicker = ({ visible, options, onClose, onSelect, title }) => (
+const CustomPicker = ({ visible, options, onClose, onSelect, title, theme }) => (
     <Modal visible={visible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
+        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
+            <View style={[styles.modalContent, { backgroundColor: theme.cardBackground }]}>
                 <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>{title}</Text>
+                    <Text style={[styles.modalTitle, { color: theme.text }]}>{title}</Text>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                        <Ionicons name="close" size={24} color="#1A1A1A" />
+                        <Ionicons name="close" size={24} color={theme.text} />
                     </TouchableOpacity>
                 </View>
                 <FlatList
@@ -65,13 +67,13 @@ const CustomPicker = ({ visible, options, onClose, onSelect, title }) => (
                     keyExtractor={(item) => item}
                     renderItem={({ item }) => (
                         <TouchableOpacity
-                            style={styles.modalItem}
+                            style={[styles.modalItem, { borderBottomColor: theme.border }]}
                             onPress={() => {
                                 onSelect(item);
                                 onClose();
                             }}
                         >
-                            <Text style={styles.modalItemText}>{item}</Text>
+                            <Text style={[styles.modalItemText, { color: theme.text }]}>{item}</Text>
                         </TouchableOpacity>
                     )}
                 />
@@ -81,6 +83,7 @@ const CustomPicker = ({ visible, options, onClose, onSelect, title }) => (
 );
 
 const CreateIssueScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const [description, setDescription] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
 
@@ -153,25 +156,26 @@ const CreateIssueScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
             >
-                <View style={styles.header}>
+                <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+                        <Ionicons name="arrow-back" size={24} color={theme.text} />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Report Issue</Text>
+                    <Text style={[styles.headerTitle, { color: theme.text }]}>Report Issue</Text>
                     <View style={{ width: 40 }} />
                 </View>
 
                 <ScrollView contentContainerStyle={styles.content}>
-                    <Text style={styles.sectionTitle}>
-                        Select Category <Text style={styles.requiredAsterisk}>*</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                        Select Category <Text style={[styles.requiredAsterisk, { color: theme.error }]}>*</Text>
                     </Text>
                     {showValidation && !selectedCategory && (
-                        <Text style={styles.errorText}>Please select a category</Text>
+                        <Text style={[styles.errorText, { color: theme.error }]}>Please select a category</Text>
                     )}
                     <View style={styles.categoriesGrid}>
                         {CATEGORIES.map((cat) => {
@@ -181,31 +185,33 @@ const CreateIssueScreen = ({ navigation }) => {
                                     key={cat.id}
                                     style={[
                                         styles.categoryCard,
-                                        isSelected && styles.selectedCategory,
+                                        { backgroundColor: theme.cardBackground, borderColor: theme.border },
+                                        isSelected && { borderColor: theme.primary },
                                     ]}
                                     onPress={() => setSelectedCategory(cat)}
                                     activeOpacity={0.7}
                                 >
                                     <View style={[
                                         styles.iconContainer,
-                                        isSelected ? styles.selectedIconContainer : styles.unselectedIconContainer
+                                        { backgroundColor: isSelected ? `${theme.primary}20` : theme.badgeBackground }
                                     ]}>
                                         <Ionicons
                                             name={cat.icon}
                                             size={24}
-                                            color={isSelected ? '#007AFF' : '#666'}
+                                            color={isSelected ? theme.primary : theme.textSecondary}
                                         />
                                     </View>
 
                                     <Text style={[
                                         styles.categoryLabel,
-                                        isSelected && styles.selectedCategoryText,
+                                        { color: isSelected ? theme.text : theme.textSecondary },
+                                        isSelected && { fontWeight: '700' },
                                     ]}>
                                         {cat.label}
                                     </Text>
 
                                     {isSelected && (
-                                        <View style={styles.checkmarkBadge}>
+                                        <View style={[styles.checkmarkBadge, { backgroundColor: theme.primary }]}>
                                             <Ionicons name="checkmark" size={12} color="#FFF" />
                                         </View>
                                     )}
@@ -216,43 +222,45 @@ const CreateIssueScreen = ({ navigation }) => {
 
                     <View style={styles.row}>
                         <View style={styles.halfInput}>
-                            <Text style={styles.inputLabel}>Severity</Text>
-                            <TouchableOpacity style={styles.pickerButton} onPress={() => setShowSeverityPicker(true)}>
-                                <Text style={styles.pickerButtonText}>{severity}</Text>
-                                <Ionicons name="chevron-down" size={20} color="#666" />
+                            <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Severity</Text>
+                            <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowSeverityPicker(true)}>
+                                <Text style={[styles.pickerButtonText, { color: theme.text }]}>{severity}</Text>
+                                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                             </TouchableOpacity>
                         </View>
                         <View style={styles.halfInput}>
-                            <Text style={styles.inputLabel}>Priority</Text>
-                            <TouchableOpacity style={styles.pickerButton} onPress={() => setShowPriorityPicker(true)}>
-                                <Text style={styles.pickerButtonText}>{priority}</Text>
-                                <Ionicons name="chevron-down" size={20} color="#666" />
+                            <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Priority</Text>
+                            <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowPriorityPicker(true)}>
+                                <Text style={[styles.pickerButtonText, { color: theme.text }]}>{priority}</Text>
+                                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    <Text style={styles.inputLabel}>Asset ID / Device Name</Text>
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Asset ID / Device Name</Text>
                     <TextInput
-                        style={styles.simpleInput}
+                        style={[styles.simpleInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.text }]}
                         placeholder="e.g. LP-2023-001"
+                        placeholderTextColor={theme.inputPlaceholder}
                         value={assetId}
                         onChangeText={setAssetId}
                     />
 
-                    <Text style={styles.sectionTitle}>
-                        Description <Text style={styles.requiredAsterisk}>*</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>
+                        Description <Text style={[styles.requiredAsterisk, { color: theme.error }]}>*</Text>
                     </Text>
                     {showValidation && !description.trim() && (
-                        <Text style={styles.errorText}>Please provide a description</Text>
+                        <Text style={[styles.errorText, { color: theme.error }]}>Please provide a description</Text>
                     )}
                     <View style={[
                         styles.inputContainer,
-                        showValidation && !description.trim() && styles.errorBorder
+                        { backgroundColor: theme.cardBackground, borderColor: theme.border },
+                        showValidation && !description.trim() && { borderColor: theme.error }
                     ]}>
                         <TextInput
-                            style={styles.textInput}
+                            style={[styles.textInput, { color: theme.text }]}
                             placeholder="Describe the issue in detail..."
-                            placeholderTextColor="#A0A0A0"
+                            placeholderTextColor={theme.inputPlaceholder}
                             multiline
                             textAlignVertical="top"
                             value={description}
@@ -260,59 +268,62 @@ const CreateIssueScreen = ({ navigation }) => {
                         />
                     </View>
 
-                    <Text style={styles.inputLabel}>Location / Room Number</Text>
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Location / Room Number</Text>
                     <TextInput
-                        style={styles.simpleInput}
+                        style={[styles.simpleInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.text }]}
                         placeholder="e.g. Server Room B, Desk 42"
+                        placeholderTextColor={theme.inputPlaceholder}
                         value={location}
                         onChangeText={setLocation}
                     />
 
                     <View style={styles.row}>
                         <View style={styles.halfInput}>
-                            <Text style={styles.inputLabel}>Impact</Text>
-                            <TouchableOpacity style={styles.pickerButton} onPress={() => setShowImpactPicker(true)}>
-                                <Text style={styles.pickerButtonText}>{impact}</Text>
-                                <Ionicons name="chevron-down" size={20} color="#666" />
+                            <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Impact</Text>
+                            <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowImpactPicker(true)}>
+                                <Text style={[styles.pickerButtonText, { color: theme.text }]}>{impact}</Text>
+                                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                             </TouchableOpacity>
                         </View>
                         <View style={styles.halfInput}>
-                            <Text style={styles.inputLabel}>Reproducibility</Text>
-                            <TouchableOpacity style={styles.pickerButton} onPress={() => setShowReproducibilityPicker(true)}>
-                                <Text style={styles.pickerButtonText}>{reproducibility}</Text>
-                                <Ionicons name="chevron-down" size={20} color="#666" />
+                            <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Reproducibility</Text>
+                            <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowReproducibilityPicker(true)}>
+                                <Text style={[styles.pickerButtonText, { color: theme.text }]}>{reproducibility}</Text>
+                                <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                             </TouchableOpacity>
                         </View>
                     </View>
 
-                    <Text style={styles.inputLabel}>Contact Phone</Text>
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Contact Phone</Text>
                     <TextInput
-                        style={styles.simpleInput}
+                        style={[styles.simpleInput, { backgroundColor: theme.cardBackground, borderColor: theme.border, color: theme.text }]}
                         placeholder="+1 (555) 000-0000"
+                        placeholderTextColor={theme.inputPlaceholder}
                         keyboardType="phone-pad"
                         value={contactPhone}
                         onChangeText={setContactPhone}
                     />
 
-                    <Text style={styles.inputLabel}>Best Time to Contact</Text>
-                    <TouchableOpacity style={styles.pickerButton} onPress={() => setShowBestTimePicker(true)}>
-                        <Text style={styles.pickerButtonText}>{bestTime}</Text>
-                        <Ionicons name="chevron-down" size={20} color="#666" />
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Best Time to Contact</Text>
+                    <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowBestTimePicker(true)}>
+                        <Text style={[styles.pickerButtonText, { color: theme.text }]}>{bestTime}</Text>
+                        <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                     </TouchableOpacity>
 
-                    <Text style={styles.inputLabel}>Steps to Reproduce</Text>
-                    <TouchableOpacity style={styles.pickerButton} onPress={() => setShowStepsPicker(true)}>
-                        <Text style={styles.pickerButtonText}>{stepsToReproduce}</Text>
-                        <Ionicons name="chevron-down" size={20} color="#666" />
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Steps to Reproduce</Text>
+                    <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowStepsPicker(true)}>
+                        <Text style={[styles.pickerButtonText, { color: theme.text }]}>{stepsToReproduce}</Text>
+                        <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                     </TouchableOpacity>
 
                     {stepsToReproduce === 'Other (describe below)' && (
                         <View style={{ marginTop: 8 }}>
-                            <Text style={[styles.inputLabel, { color: '#007AFF', marginTop: 0 }]}>Describe Steps to Reproduce:</Text>
-                            <View style={[styles.inputContainer, { height: 80, marginBottom: 8 }]}>
+                            <Text style={[styles.inputLabel, { color: theme.primary, marginTop: 0 }]}>Describe Steps to Reproduce:</Text>
+                            <View style={[styles.inputContainer, { height: 80, marginBottom: 8, backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
                                 <TextInput
-                                    style={styles.textInput}
+                                    style={[styles.textInput, { color: theme.text }]}
                                     placeholder="1. Go to..."
+                                    placeholderTextColor={theme.inputPlaceholder}
                                     multiline
                                     textAlignVertical="top"
                                     value={stepsDescription}
@@ -322,19 +333,20 @@ const CreateIssueScreen = ({ navigation }) => {
                         </View>
                     )}
 
-                    <Text style={styles.inputLabel}>Expected Result</Text>
-                    <TouchableOpacity style={styles.pickerButton} onPress={() => setShowExpectedResultPicker(true)}>
-                        <Text style={styles.pickerButtonText}>{expectedResult}</Text>
-                        <Ionicons name="chevron-down" size={20} color="#666" />
+                    <Text style={[styles.inputLabel, { color: theme.textSecondary }]}>Expected Result</Text>
+                    <TouchableOpacity style={[styles.pickerButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]} onPress={() => setShowExpectedResultPicker(true)}>
+                        <Text style={[styles.pickerButtonText, { color: theme.text }]}>{expectedResult}</Text>
+                        <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
                     </TouchableOpacity>
 
                     {expectedResult === 'Other (describe below)' && (
                         <View style={{ marginTop: 8 }}>
-                            <Text style={[styles.inputLabel, { color: '#007AFF', marginTop: 0 }]}>Describe Expected Result:</Text>
-                            <View style={[styles.inputContainer, { height: 80, marginBottom: 8 }]}>
+                            <Text style={[styles.inputLabel, { color: theme.primary, marginTop: 0 }]}>Describe Expected Result:</Text>
+                            <View style={[styles.inputContainer, { height: 80, marginBottom: 8, backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
                                 <TextInput
-                                    style={styles.textInput}
+                                    style={[styles.textInput, { color: theme.text }]}
                                     placeholder="It should..."
+                                    placeholderTextColor={theme.inputPlaceholder}
                                     multiline
                                     textAlignVertical="top"
                                     value={expectedResultDescription}
@@ -351,6 +363,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowSeverityPicker(false)}
                         onSelect={setSeverity}
                         title="Select Severity"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showPriorityPicker}
@@ -358,6 +371,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowPriorityPicker(false)}
                         onSelect={setPriority}
                         title="Select Priority"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showImpactPicker}
@@ -365,6 +379,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowImpactPicker(false)}
                         onSelect={setImpact}
                         title="Select Impact Scope"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showReproducibilityPicker}
@@ -372,6 +387,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowReproducibilityPicker(false)}
                         onSelect={setReproducibility}
                         title="Freq. of Occurrence"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showBestTimePicker}
@@ -379,6 +395,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowBestTimePicker(false)}
                         onSelect={setBestTime}
                         title="Best Time to Contact"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showStepsPicker}
@@ -386,6 +403,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowStepsPicker(false)}
                         onSelect={setStepsToReproduce}
                         title="Steps to Reproduce"
+                        theme={theme}
                     />
                     <CustomPicker
                         visible={showExpectedResultPicker}
@@ -393,6 +411,7 @@ const CreateIssueScreen = ({ navigation }) => {
                         onClose={() => setShowExpectedResultPicker(false)}
                         onSelect={setExpectedResult}
                         title="Expected Result"
+                        theme={theme}
                     />
 
                     <View style={{ height: 20 }} />
@@ -400,7 +419,8 @@ const CreateIssueScreen = ({ navigation }) => {
                     <TouchableOpacity
                         style={[
                             styles.submitButton,
-                            (!selectedCategory || !description.trim()) && styles.disabledButton
+                            { backgroundColor: theme.primary },
+                            (!selectedCategory || !description.trim()) && { backgroundColor: theme.textTertiary }
                         ]}
                         onPress={handleSubmit}
                         disabled={loading || !selectedCategory || !description.trim()}
@@ -420,7 +440,6 @@ const CreateIssueScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -429,8 +448,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
-        backgroundColor: '#FFF',
     },
     backButton: {
         padding: 8,
@@ -438,7 +455,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
     },
     content: {
         padding: 24,
@@ -446,24 +462,17 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 16,
         marginTop: 8,
     },
     requiredAsterisk: {
-        color: '#FF3B30',
         fontSize: 16,
         fontWeight: '700',
     },
     errorText: {
-        color: '#FF3B30',
         fontSize: 13,
         marginBottom: 8,
         marginTop: -8,
-    },
-    errorBorder: {
-        borderColor: '#FF3B30',
-        borderWidth: 1.5,
     },
     categoriesGrid: {
         flexDirection: 'row',
@@ -474,26 +483,16 @@ const styles = StyleSheet.create({
     categoryCard: {
         width: '47%',
         aspectRatio: 1.6,
-        backgroundColor: '#FFF',
         borderRadius: 16,
         padding: 12,
         justifyContent: 'space-between',
         borderWidth: 1.5,
-        borderColor: '#F2F2F7',
         // Smooth shadow
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.04,
         shadowRadius: 8,
         elevation: 2,
-    },
-    selectedCategory: {
-        backgroundColor: '#FFF',
-        borderColor: '#007AFF',
-        shadowColor: '#007AFF',
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-        elevation: 6,
     },
     iconContainer: {
         width: 40,
@@ -502,21 +501,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    unselectedIconContainer: {
-        backgroundColor: '#F2F2F7',
-    },
-    selectedIconContainer: {
-        backgroundColor: '#E3F2FD', // Light blue
-    },
     categoryLabel: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#8E8E93',
         marginTop: 4,
-    },
-    selectedCategoryText: {
-        color: '#1A1A1A',
-        fontWeight: '700',
     },
     checkmarkBadge: {
         position: 'absolute',
@@ -525,40 +513,29 @@ const styles = StyleSheet.create({
         width: 20,
         height: 20,
         borderRadius: 10,
-        backgroundColor: '#007AFF',
         justifyContent: 'center',
         alignItems: 'center',
     },
     inputContainer: {
-        backgroundColor: '#FFF',
         borderRadius: 16,
         padding: 16,
         borderWidth: 1,
-        borderColor: '#E5E5EA',
         height: 150,
         marginBottom: 32,
     },
     textInput: {
         flex: 1,
         fontSize: 16,
-        color: '#1A1A1A',
     },
     submitButton: {
         height: 48,
-        backgroundColor: '#007AFF',
         borderRadius: 14,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#007AFF',
         shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.25,
         shadowRadius: 6,
         elevation: 3,
-    },
-    disabledButton: {
-        backgroundColor: '#A0A0A0',
-        shadowOpacity: 0,
-        elevation: 0,
     },
     submitButtonText: {
         color: '#FFFFFF',
@@ -569,32 +546,25 @@ const styles = StyleSheet.create({
     inputLabel: {
         fontSize: 14,
         fontWeight: '500',
-        color: '#666',
         marginBottom: 8,
         marginTop: 16,
     },
     simpleInput: {
-        backgroundColor: '#FFF',
         borderRadius: 12,
         padding: 12,
         borderWidth: 1,
-        borderColor: '#E5E5EA',
         fontSize: 16,
-        color: '#1A1A1A',
     },
     pickerButton: {
-        backgroundColor: '#FFF',
         borderRadius: 12,
         padding: 12,
         borderWidth: 1,
-        borderColor: '#E5E5EA',
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     pickerButtonText: {
         fontSize: 16,
-        color: '#1A1A1A',
     },
     row: {
         flexDirection: 'row',
@@ -605,11 +575,9 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
         justifyContent: 'flex-end',
     },
     modalContent: {
-        backgroundColor: '#FFF',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
         padding: 24,
@@ -624,16 +592,13 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
     },
     modalItem: {
         paddingVertical: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     modalItemText: {
         fontSize: 16,
-        color: '#1A1A1A',
     },
 });
 

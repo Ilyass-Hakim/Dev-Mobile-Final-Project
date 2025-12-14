@@ -18,6 +18,7 @@ import HomeScreen from '../screens/employee/HomeScreen';
 import CreateIssueScreen from '../screens/employee/CreateIssueScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import NotificationsScreen from '../screens/NotificationsScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 // Admin Room
 import AdminDashboardScreen from '../screens/admin/AdminDashboardScreen';
@@ -44,6 +45,7 @@ const EmployeeStack = () => (
         <Stack.Screen name="IssueList" component={EmployeeIssueListScreen} />
         <Stack.Screen name="IssueDetails" component={EmployeeIssueDetailsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
 );
 
@@ -55,6 +57,7 @@ const ManagerStack = () => (
         <Stack.Screen name="IssueDetails" component={ManagerIssueDetailsScreen} />
         <Stack.Screen name="Analytics" component={AnalyticsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
 );
 
@@ -65,10 +68,19 @@ const AdminStack = () => (
         <Stack.Screen name="UserManagement" component={UserManagementScreen} />
         <Stack.Screen name="Analytics" component={AnalyticsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
 
         {/* Admin reuses Manager Issue Views for global access */}
         <Stack.Screen name="IssueList" component={ManagerIssueListScreen} />
         <Stack.Screen name="IssueDetails" component={ManagerIssueDetailsScreen} />
+    </Stack.Navigator>
+);
+
+// --- PROFILE STACK ---
+const ProfileStack = () => (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="ProfileMain" component={ProfileScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
     </Stack.Navigator>
 );
 
@@ -158,7 +170,7 @@ const AppStack = () => {
                 <Tab.Screen name="Admin" component={AdminStack} />
                 {/* Direct Tab Access to Issues for Admins too */}
                 <Tab.Screen name="GlobalIssues" component={ManagerIssueListScreen} />
-                <Tab.Screen name="Profile" component={ProfileScreen} />
+                <Tab.Screen name="Profile" component={ProfileStack} />
             </Tab.Navigator>
         );
     }
@@ -189,7 +201,7 @@ const AppStack = () => {
                         </Stack.Navigator>
                     )}
                 </Tab.Screen>
-                <Tab.Screen name="Profile" component={ProfileScreen} />
+                <Tab.Screen name="Profile" component={ProfileStack} />
             </Tab.Navigator>
         );
     }
@@ -220,7 +232,7 @@ const AppStack = () => {
                     </Stack.Navigator>
                 )}
             </Tab.Screen>
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+            <Tab.Screen name="Profile" component={ProfileStack} />
         </Tab.Navigator>
     );
 };

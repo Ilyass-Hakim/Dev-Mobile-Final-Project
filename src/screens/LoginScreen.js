@@ -10,16 +10,19 @@ import {
     Platform,
     TouchableWithoutFeedback,
     Keyboard,
+    StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { UserService } from '../services/UserService';
+import { useTheme } from '../context/ThemeContext';
 
 const LoginScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { theme, isDarkMode } = useTheme();
 
     const handleLogin = async () => {
         if (!email || !password) {
@@ -69,7 +72,8 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -77,17 +81,17 @@ const LoginScreen = ({ navigation }) => {
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                     <View style={styles.inner}>
                         <View style={styles.headerContainer}>
-                            <Text style={styles.title}>Welcome Back</Text>
-                            <Text style={styles.subtitle}>Sign in to continue reporting issues</Text>
+                            <Text style={[styles.title, { color: theme.text }]}>Welcome Back</Text>
+                            <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Sign in to continue reporting issues</Text>
                         </View>
 
                         <View style={styles.formContainer}>
                             <View style={styles.inputContainer}>
-                                <Text style={styles.inputLabel}>Email</Text>
+                                <Text style={[styles.inputLabel, { color: theme.text }]}>Email</Text>
                                 <TextInput
-                                    style={styles.input}
+                                    style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                     placeholder="Enter your email"
-                                    placeholderTextColor="#A0A0A0"
+                                    placeholderTextColor={theme.inputPlaceholder}
                                     value={email}
                                     onChangeText={setEmail}
                                     keyboardType="email-address"
@@ -96,11 +100,11 @@ const LoginScreen = ({ navigation }) => {
                             </View>
 
                             <View style={styles.inputContainer}>
-                                <Text style={styles.inputLabel}>Password</Text>
+                                <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
                                 <TextInput
-                                    style={styles.input}
+                                    style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                     placeholder="Enter your password"
-                                    placeholderTextColor="#A0A0A0"
+                                    placeholderTextColor={theme.inputPlaceholder}
                                     value={password}
                                     onChangeText={setPassword}
                                     secureTextEntry
@@ -108,11 +112,11 @@ const LoginScreen = ({ navigation }) => {
                             </View>
 
                             <TouchableOpacity style={styles.forgotPassword}>
-                                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+                                <Text style={[styles.forgotPasswordText, { color: theme.primary }]}>Forgot Password?</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
-                                style={styles.button}
+                                style={[styles.button, { backgroundColor: theme.primary }]}
                                 onPress={handleLogin}
                                 disabled={loading}
                             >
@@ -124,9 +128,9 @@ const LoginScreen = ({ navigation }) => {
                             </TouchableOpacity>
 
                             <View style={styles.footer}>
-                                <Text style={styles.footerText}>Don't have an account? </Text>
+                                <Text style={[styles.footerText, { color: theme.textSecondary }]}>Don't have an account? </Text>
                                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                                    <Text style={styles.footerLink}>Sign Up</Text>
+                                    <Text style={[styles.footerLink, { color: theme.primary }]}>Sign Up</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -140,7 +144,6 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
     },
     keyboardView: {
         flex: 1,
@@ -156,12 +159,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#1A1A1A',
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: '#666666',
         lineHeight: 24,
     },
     formContainer: {
@@ -173,35 +174,28 @@ const styles = StyleSheet.create({
     inputLabel: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 8,
     },
     input: {
         height: 50,
-        backgroundColor: '#F7F7F7',
         borderRadius: 12,
         paddingHorizontal: 16,
         fontSize: 16,
-        color: '#1A1A1A',
         borderWidth: 1,
-        borderColor: '#E0E0E0',
     },
     forgotPassword: {
         alignSelf: 'flex-end',
         marginBottom: 24,
     },
     forgotPasswordText: {
-        color: '#007AFF', // Premium Blue
         fontSize: 14,
         fontWeight: '600',
     },
     button: {
         height: 56,
-        backgroundColor: '#007AFF',
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#007AFF',
         shadowOffset: {
             width: 0,
             height: 4,
@@ -223,11 +217,9 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 14,
-        color: '#666666',
     },
     footerLink: {
         fontSize: 14,
-        color: '#007AFF',
         fontWeight: '700',
     },
 });

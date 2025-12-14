@@ -12,9 +12,11 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
+import { useTheme } from '../../context/ThemeContext';
 
 const HomeScreen = ({ navigation }) => {
     const [userName, setUserName] = useState('');
+    const { theme, isDarkMode } = useTheme();
 
     useFocusEffect(
         useCallback(() => {
@@ -34,7 +36,7 @@ const HomeScreen = ({ navigation }) => {
 
     const ActionCard = ({ title, subtitle, icon, color, onPress }) => (
         <TouchableOpacity
-            style={[styles.card, { paddingBottom: 20 }]}
+            style={[styles.card, { backgroundColor: theme.cardBackground }]}
             onPress={onPress}
             activeOpacity={0.9}
         >
@@ -42,18 +44,18 @@ const HomeScreen = ({ navigation }) => {
                 <Ionicons name={icon} size={28} color={color} />
             </View>
             <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{title}</Text>
-                <Text style={styles.cardSubtitle}>{subtitle}</Text>
+                <Text style={[styles.cardTitle, { color: theme.text }]}>{title}</Text>
+                <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>{subtitle}</Text>
             </View>
             <View style={styles.arrowContainer}>
-                <Ionicons name="arrow-forward" size={20} color="#C7C7CC" />
+                <Ionicons name="arrow-forward" size={20} color={theme.textTertiary} />
             </View>
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <StatusBar barStyle="dark-content" />
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
@@ -61,32 +63,32 @@ const HomeScreen = ({ navigation }) => {
                 {/* Header Section */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.greeting}>Hello,</Text>
-                        <Text style={styles.nameText}>{userName}</Text>
+                        <Text style={[styles.greeting, { color: theme.textSecondary }]}>Hello,</Text>
+                        <Text style={[styles.nameText, { color: theme.text }]}>{userName}</Text>
                     </View>
                     <TouchableOpacity
-                        style={styles.profileButton}
+                        style={[styles.profileButton, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}
                         onPress={handleLogout}
                     >
-                        <Ionicons name="log-out-outline" size={24} color="#1A1A1A" />
+                        <Ionicons name="log-out-outline" size={24} color={theme.text} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Stats Section */}
-                <View style={styles.statsContainer}>
+                <View style={[styles.statsContainer, { backgroundColor: theme.cardBackground }]}>
                     <View style={styles.statBox}>
-                        <Text style={[styles.statNumber, { color: '#007AFF' }]}>12</Text>
-                        <Text style={styles.statLabel}>Pending</Text>
+                        <Text style={[styles.statNumber, { color: theme.primary }]}>12</Text>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Pending</Text>
                     </View>
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
                     <View style={styles.statBox}>
-                        <Text style={[styles.statNumber, { color: '#34C759' }]}>28</Text>
-                        <Text style={styles.statLabel}>Resolved</Text>
+                        <Text style={[styles.statNumber, { color: theme.success }]}>28</Text>
+                        <Text style={[styles.statLabel, { color: theme.textSecondary }]}>Resolved</Text>
                     </View>
                 </View>
 
                 {/* Main Actions */}
-                <Text style={styles.sectionTitle}>What would you like to do?</Text>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>What would you like to do?</Text>
 
                 <View style={styles.cardsContainer}>
                     <ActionCard
@@ -121,7 +123,6 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     scrollContent: {
         padding: 24,
@@ -134,37 +135,30 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 16,
-        color: '#666666',
         marginBottom: 4,
     },
     nameText: {
         fontSize: 28,
         fontWeight: '700',
-        color: '#1A1A1A',
     },
     profileButton: {
         width: 44,
         height: 44,
         borderRadius: 12,
-        backgroundColor: '#fff',
         justifyContent: 'center',
         alignItems: 'center',
-        // Shadow
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
         borderWidth: 1,
-        borderColor: '#F0F0F0',
     },
     statsContainer: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
         borderRadius: 20,
         padding: 20,
         marginBottom: 32,
-        // Shadow
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.05,
@@ -178,7 +172,6 @@ const styles = StyleSheet.create({
     divider: {
         width: 1,
         height: '80%',
-        backgroundColor: '#E5E5EA',
         alignSelf: 'center',
     },
     statNumber: {
@@ -188,13 +181,11 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: 12,
-        color: '#8E8E93',
         fontWeight: '500',
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 16,
     },
     cardsContainer: {
@@ -203,10 +194,9 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
         borderRadius: 16,
         padding: 16,
-        // Shadow
+        paddingBottom: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,
@@ -227,12 +217,10 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     cardSubtitle: {
         fontSize: 13,
-        color: '#8E8E93',
         lineHeight: 18,
     },
     arrowContainer: {

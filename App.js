@@ -8,6 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './src/config/firebase';
 import AuthStack from './src/navigation/AuthStack';
 import AppStack from './src/navigation/AppStack';
+import { ThemeProvider } from './src/context/ThemeContext';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -30,11 +31,13 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <StatusBar style="auto" />
-        {user ? <AppStack /> : <AuthStack />}
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <StatusBar style="auto" />
+          {user ? <AppStack /> : <AuthStack />}
+        </NavigationContainer>
+      </SafeAreaProvider>
+    </ThemeProvider>
   );
 }

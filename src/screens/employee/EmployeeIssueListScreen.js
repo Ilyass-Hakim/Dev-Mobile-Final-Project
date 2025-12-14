@@ -15,8 +15,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../../config/firebase';
 import { IssueService } from '../../services/IssueService';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTheme } from '../../context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 
 const EmployeeIssueListScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const [issues, setIssues] = useState([]);
     const [filteredIssues, setFilteredIssues] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -76,7 +79,7 @@ const EmployeeIssueListScreen = ({ navigation }) => {
 
     const renderItem = ({ item }) => (
         <TouchableOpacity
-            style={styles.card}
+            style={[styles.card, { backgroundColor: theme.cardBackground }]}
             onPress={() => navigation.navigate('IssueDetails', { issue: item })}
         >
             <View style={styles.cardHeader}>
@@ -88,44 +91,45 @@ const EmployeeIssueListScreen = ({ navigation }) => {
                                     item.category === 'IT' ? 'desktop' : 'cart'
                         }
                         size={16}
-                        color="#666"
+                        color={theme.textSecondary}
                         style={{ marginRight: 6 }}
                     />
-                    <Text style={styles.categoryText}>{item.category}</Text>
+                    <Text style={[styles.categoryText, { color: theme.textSecondary }]}>{item.category}</Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
                     <Text style={styles.statusText}>{item.status}</Text>
                 </View>
             </View>
 
-            <Text style={styles.description} numberOfLines={2}>
+            <Text style={[styles.description, { color: theme.text }]} numberOfLines={2}>
                 {item.description}
             </Text>
 
-            <View style={styles.cardFooter}>
-                <Text style={styles.dateText}>
+            <View style={[styles.cardFooter, { borderTopColor: theme.border }]}>
+                <Text style={[styles.dateText, { color: theme.textTertiary }]}>
                     {new Date(item.createdAt).toLocaleDateString()}
                 </Text>
-                <Ionicons name="chevron-forward" size={16} color="#C7C7CC" />
+                <Ionicons name="chevron-forward" size={16} color={theme.textTertiary} />
             </View>
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
-                <Text style={styles.headerTitle}>My Reports</Text>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>My Reports</Text>
             </View>
 
             {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <Ionicons name="search" size={20} color="#8E8E93" style={styles.searchIcon} />
+            <View style={[styles.searchContainer, { backgroundColor: theme.inputBackground }]}>
+                <Ionicons name="search" size={20} color={theme.textSecondary} style={styles.searchIcon} />
                 <TextInput
-                    style={styles.searchInput}
+                    style={[styles.searchInput, { color: theme.text }]}
                     placeholder="Search my reports..."
                     value={searchQuery}
                     onChangeText={setSearchQuery}
-                    placeholderTextColor="#8E8E93"
+                    placeholderTextColor={theme.inputPlaceholder}
                     clearButtonMode="while-editing"
                 />
             </View>
@@ -138,12 +142,13 @@ const EmployeeIssueListScreen = ({ navigation }) => {
                             key={cat}
                             style={[
                                 styles.filterChip,
-                                selectedCategory === cat && styles.filterChipActive
+                                { backgroundColor: selectedCategory === cat ? theme.primary : theme.badgeBackground }
                             ]}
                             onPress={() => setSelectedCategory(cat)}
                         >
                             <Text style={[
                                 styles.filterText,
+                                { color: selectedCategory === cat ? '#FFFFFF' : theme.text },
                                 selectedCategory === cat && styles.filterTextActive
                             ]}>{cat}</Text>
                         </TouchableOpacity>
@@ -153,7 +158,7 @@ const EmployeeIssueListScreen = ({ navigation }) => {
 
             {loading && !refreshing ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#007AFF" />
+                    <ActivityIndicator size="large" color={theme.primary} />
                 </View>
             ) : (
                 <FlatList
@@ -164,8 +169,8 @@ const EmployeeIssueListScreen = ({ navigation }) => {
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
-                            <Ionicons name="clipboard-outline" size={64} color="#C7C7CC" />
-                            <Text style={styles.emptyText}>No reports found</Text>
+                            <Ionicons name="clipboard-outline" size={64} color={theme.textTertiary} />
+                            <Text style={[styles.emptyText, { color: theme.textSecondary }]}>No reports found</Text>
                         </View>
                     }
                 />
@@ -177,24 +182,19 @@ const EmployeeIssueListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F2F2F7',
     },
     header: {
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#fff',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E5EA',
     },
     headerTitle: {
         fontSize: 28,
         fontWeight: '700',
-        color: '#000',
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#E3E3E8',
         borderRadius: 10,
         marginHorizontal: 16,
         marginTop: 12,
@@ -208,7 +208,6 @@ const styles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: 16,
-        color: '#000',
     },
     filterContainer: {
         marginBottom: 8,
@@ -222,26 +221,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 6,
         borderRadius: 20,
-        backgroundColor: '#E5E5EA',
         marginRight: 8,
-    },
-    filterChipActive: {
-        backgroundColor: '#007AFF',
     },
     filterText: {
         fontSize: 14,
-        color: '#1A1A1A',
         fontWeight: '500',
     },
     filterTextActive: {
-        color: '#FFFFFF',
         fontWeight: '600',
     },
     listContent: {
         padding: 16,
     },
     card: {
-        backgroundColor: '#fff',
         borderRadius: 12,
         padding: 16,
         marginBottom: 12,
@@ -266,7 +258,6 @@ const styles = StyleSheet.create({
     categoryText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#8E8E93',
     },
     statusBadge: {
         paddingHorizontal: 8,
@@ -281,12 +272,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 17,
         fontWeight: '600',
-        color: '#000',
         marginBottom: 4,
     },
     description: {
         fontSize: 15,
-        color: '#3C3C43',
         marginBottom: 12,
         lineHeight: 20,
     },
@@ -295,12 +284,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#F2F2F7',
         paddingTop: 12,
     },
     dateText: {
         fontSize: 13,
-        color: '#C7C7CC',
     },
     emptyContainer: {
         alignItems: 'center',
@@ -310,7 +297,6 @@ const styles = StyleSheet.create({
     emptyText: {
         marginTop: 16,
         fontSize: 16,
-        color: '#8E8E93',
         textAlign: 'center',
     },
 });

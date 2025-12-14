@@ -11,8 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../../config/firebase';
 import { signOut } from 'firebase/auth';
+import { useTheme } from '../../context/ThemeContext';
 
 const AdminDashboardScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
+    
     const handleLogout = async () => {
         try {
             await signOut(auth);
@@ -23,7 +26,7 @@ const AdminDashboardScreen = ({ navigation }) => {
 
     const ActionCard = ({ title, subtitle, icon, color, onPress }) => (
         <TouchableOpacity
-            style={[styles.card]}
+            style={[styles.card, { backgroundColor: theme.cardBackground }]}
             onPress={onPress}
             activeOpacity={0.9}
         >
@@ -31,31 +34,31 @@ const AdminDashboardScreen = ({ navigation }) => {
                 <Ionicons name={icon} size={28} color={color} />
             </View>
             <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{title}</Text>
-                <Text style={styles.cardSubtitle}>{subtitle}</Text>
+                <Text style={[styles.cardTitle, { color: theme.text }]}>{title}</Text>
+                <Text style={[styles.cardSubtitle, { color: theme.textSecondary }]}>{subtitle}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Ionicons name="chevron-forward" size={20} color={theme.textTertiary} />
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <StatusBar barStyle="dark-content" />
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <View>
-                    <Text style={styles.greeting}>Welcome,</Text>
-                    <Text style={styles.nameText}>Administrator</Text>
+                    <Text style={[styles.greeting, { color: theme.textSecondary }]}>Welcome,</Text>
+                    <Text style={[styles.nameText, { color: theme.text }]}>Administrator</Text>
                 </View>
                 <TouchableOpacity
                     style={styles.logoutButton}
                     onPress={handleLogout}
                 >
-                    <Ionicons name="log-out-outline" size={24} color="#1A1A1A" />
+                    <Ionicons name="log-out-outline" size={24} color={theme.text} />
                 </TouchableOpacity>
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
-                <Text style={styles.sectionTitle}>Administration</Text>
+                <Text style={[styles.sectionTitle, { color: theme.text }]}>Administration</Text>
                 <View style={styles.cardsContainer}>
                     <ActionCard
                         title="User Management"
@@ -73,7 +76,7 @@ const AdminDashboardScreen = ({ navigation }) => {
                     />
                 </View>
 
-                <Text style={[styles.sectionTitle, { marginTop: 32 }]}>Operations</Text>
+                <Text style={[styles.sectionTitle, { marginTop: 32, color: theme.text }]}>Operations</Text>
                 <View style={styles.cardsContainer}>
                     <ActionCard
                         title="Global Issue Dashboard"
@@ -107,7 +110,6 @@ const AdminDashboardScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -115,19 +117,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 24,
         paddingVertical: 20,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     greeting: {
         fontSize: 14,
-        color: '#666',
         marginBottom: 4,
     },
     nameText: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#1A1A1A',
     },
     logoutButton: {
         padding: 8,
@@ -138,7 +136,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 16,
     },
     cardsContainer: {
@@ -147,7 +144,6 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
         borderRadius: 16,
         padding: 20,
         shadowColor: '#000',
@@ -170,12 +166,10 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     cardSubtitle: {
         fontSize: 13,
-        color: '#8E8E93',
     },
 });
 

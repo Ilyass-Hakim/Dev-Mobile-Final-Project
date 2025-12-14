@@ -4,9 +4,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { auth } from '../config/firebase';
 import { signOut } from 'firebase/auth';
+import { useTheme } from '../context/ThemeContext';
 
 const ProfileScreen = ({ navigation }) => {
     const user = auth.currentUser;
+    const { theme } = useTheme();
 
     const handleLogout = async () => {
         try {
@@ -16,27 +18,27 @@ const ProfileScreen = ({ navigation }) => {
         }
     };
 
-    const MenuItem = ({ icon, label, onPress, color = '#1A1A1A' }) => (
-        <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+    const MenuItem = ({ icon, label, onPress, color }) => (
+        <TouchableOpacity style={[styles.menuItem, { backgroundColor: theme.cardBackground }]} onPress={onPress}>
             <View style={styles.menuIconContainer}>
-                <Ionicons name={icon} size={24} color={color} />
+                <Ionicons name={icon} size={24} color={color || theme.text} />
             </View>
-            <Text style={[styles.menuLabel, { color }]}>{label}</Text>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            <Text style={[styles.menuLabel, { color: color || theme.text }]}>{label}</Text>
+            <Ionicons name="chevron-forward" size={20} color={theme.textTertiary} />
         </TouchableOpacity>
     );
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={styles.header}>
-                <View style={styles.avatarContainer}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
+                <View style={[styles.avatarContainer, { backgroundColor: theme.primary }]}>
                     <Text style={styles.avatarText}>
                         {user?.displayName ? user.displayName[0].toUpperCase() : 'U'}
                     </Text>
                 </View>
-                <Text style={styles.name}>{user?.displayName || 'User'}</Text>
-                <Text style={styles.email}>{user?.email}</Text>
-                {user?.role && <View style={styles.roleBadge}><Text style={styles.roleText}>{user.role}</Text></View>}
+                <Text style={[styles.name, { color: theme.text }]}>{user?.displayName || 'User'}</Text>
+                <Text style={[styles.email, { color: theme.textSecondary }]}>{user?.email}</Text>
+                {user?.role && <View style={[styles.roleBadge, { backgroundColor: theme.badgeBackground }]}><Text style={[styles.roleText, { color: theme.badgeText }]}>{user.role}</Text></View>}
             </View>
 
             <View style={styles.menuContainer}>
@@ -53,7 +55,7 @@ const ProfileScreen = ({ navigation }) => {
                 <MenuItem
                     icon="settings-outline"
                     label="Settings"
-                    onPress={() => { }}
+                    onPress={() => navigation.navigate('Settings')}
                 />
 
                 <View style={styles.spacer} />
@@ -62,7 +64,7 @@ const ProfileScreen = ({ navigation }) => {
                     icon="log-out-outline"
                     label="Log Out"
                     onPress={handleLogout}
-                    color="#FF3B30"
+                    color={theme.error}
                 />
             </View>
         </SafeAreaView>
@@ -72,24 +74,19 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         alignItems: 'center',
         paddingVertical: 32,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     avatarContainer: {
         width: 80,
         height: 80,
         borderRadius: 40,
-        backgroundColor: '#007AFF',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 16,
-        // Shadow
         shadowColor: '#007AFF',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
@@ -104,16 +101,13 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 24,
         fontWeight: '700',
-        color: '#1A1A1A',
         marginBottom: 4,
     },
     email: {
         fontSize: 16,
-        color: '#8E8E93',
         marginBottom: 12,
     },
     roleBadge: {
-        backgroundColor: '#F2F2F7',
         paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: 12,
@@ -121,7 +115,6 @@ const styles = StyleSheet.create({
     roleText: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#666',
         textTransform: 'capitalize',
     },
     menuContainer: {
@@ -130,11 +123,9 @@ const styles = StyleSheet.create({
     menuItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF',
         padding: 16,
         borderRadius: 16,
         marginBottom: 12,
-        // Shadow
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.05,

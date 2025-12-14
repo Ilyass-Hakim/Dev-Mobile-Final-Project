@@ -16,8 +16,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db, auth } from '../../config/firebase';
 import { IssueService } from '../../services/IssueService';
+import { useTheme } from '../../context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
 
 const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const { issue: initialIssue } = route.params;
     const [issue, setIssue] = useState(initialIssue);
     const [newComment, setNewComment] = useState('');
@@ -58,12 +61,13 @@ const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+                    <Ionicons name="arrow-back" size={24} color={theme.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Issue Details</Text>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Issue Details</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -72,37 +76,24 @@ const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
                     <View style={[styles.largeBadge, { backgroundColor: getStatusColor(issue.status) }]}>
                         <Text style={styles.largeBadgeText}>{issue.status}</Text>
                     </View>
-                    <Text style={styles.dateText}>Reported on {new Date(issue.createdAt).toLocaleDateString()}</Text>
+                    <Text style={[styles.dateText, { color: theme.textSecondary }]}>Reported on {new Date(issue.createdAt).toLocaleDateString()}</Text>
                 </View>
 
-                <View style={styles.card}>
-                    <Text style={styles.label}>Category</Text>
+                <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
                     <View style={styles.row}>
-                        <Ionicons name="pricetag" size={20} color="#666" style={{ marginRight: 8 }} />
-                        <Text style={styles.value}>{issue.category}</Text>
+                        <Ionicons name="pricetag" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+                        <Text style={[styles.value, { color: theme.text }]}>{issue.category}</Text>
                     </View>
 
                     <View style={styles.row}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Severity</Text>
-                            <Text style={styles.value}>{issue.severity || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Severity</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.severity || 'N/A'}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Priority</Text>
-                            <Text style={styles.value}>{issue.priority || 'N/A'}</Text>
-                        </View>
-                    </View>
-
-                    <View style={{ height: 16 }} />
-
-                    <View style={styles.row}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Location</Text>
-                            <Text style={styles.value}>{issue.location || 'N/A'}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Asset ID</Text>
-                            <Text style={styles.value}>{issue.assetId || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Priority</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.priority || 'N/A'}</Text>
                         </View>
                     </View>
 
@@ -110,49 +101,63 @@ const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
 
                     <View style={styles.row}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Impact</Text>
-                            <Text style={styles.value}>{issue.impact || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Location</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.location || 'N/A'}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Reproducibility</Text>
-                            <Text style={styles.value}>{issue.reproducibility || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Asset ID</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.assetId || 'N/A'}</Text>
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={{ height: 16 }} />
 
-                    <Text style={styles.label}>Description</Text>
-                    <Text style={styles.description}>{issue.description}</Text>
+                    <View style={styles.row}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Impact</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.impact || 'N/A'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Reproducibility</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.reproducibility || 'N/A'}</Text>
+                        </View>
+                    </View>
 
-                    <Text style={[styles.label, { marginTop: 16 }]}>Steps to Reproduce</Text>
-                    <Text style={styles.description}>{issue.stepsToReproduce || 'N/A'}</Text>
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-                    <Text style={[styles.label, { marginTop: 16 }]}>Expected Result</Text>
-                    <Text style={styles.description}>{issue.expectedResult || 'N/A'}</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Description</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.description}</Text>
 
-                    <Text style={[styles.label, { marginTop: 16 }]}>Contact Info</Text>
-                    <Text style={styles.value}>{issue.contactPhone || 'N/A'} ({issue.bestTime || 'Anytime'})</Text>
+                    <Text style={[styles.label, { marginTop: 16, color: theme.textSecondary }]}>Steps to Reproduce</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.stepsToReproduce || 'N/A'}</Text>
 
-                    <View style={styles.divider} />
+                    <Text style={[styles.label, { marginTop: 16, color: theme.textSecondary }]}>Expected Result</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.expectedResult || 'N/A'}</Text>
 
-                    <Text style={styles.label}>Discussion</Text>
+                    <Text style={[styles.label, { marginTop: 16, color: theme.textSecondary }]}>Contact Info</Text>
+                    <Text style={[styles.value, { color: theme.text }]}>{issue.contactPhone || 'N/A'} ({issue.bestTime || 'Anytime'})</Text>
+
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Discussion</Text>
                     {issue.comments && issue.comments.length > 0 ? (
                         issue.comments.map((comment, index) => (
                             <View key={index} style={[
                                 styles.commentBox,
-                                comment.role === 'manager' ? styles.managerComment : styles.employeeComment
+                                { backgroundColor: comment.role === 'manager' ? `${theme.warning}20` : `${theme.primary}20` },
+                                comment.role === 'manager' ? { borderLeftColor: theme.warning } : { borderRightColor: theme.primary }
                             ]}>
-                                <Text style={styles.commentAuthor}>
+                                <Text style={[styles.commentAuthor, { color: theme.text }]}>
                                     {comment.role === 'manager' ? 'Manager' : 'You'}
                                 </Text>
-                                <Text style={styles.commentText}>{comment.text}</Text>
-                                <Text style={styles.commentDate}>
+                                <Text style={[styles.commentText, { color: theme.text }]}>{comment.text}</Text>
+                                <Text style={[styles.commentDate, { color: theme.textTertiary }]}>
                                     {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </Text>
                             </View>
                         ))
                     ) : (
-                        <Text style={styles.noCommentsText}>No comments yet.</Text>
+                        <Text style={[styles.noCommentsText, { color: theme.textSecondary }]}>No comments yet.</Text>
                     )}
                 </View>
             </ScrollView>
@@ -160,19 +165,19 @@ const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-                style={styles.inputWrapper}
+                style={[styles.inputWrapper, { backgroundColor: theme.background }]}
             >
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, { backgroundColor: theme.cardBackground, borderColor: theme.border }]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: theme.text }]}
                         placeholder="Type a reply..."
                         value={newComment}
                         onChangeText={setNewComment}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={theme.inputPlaceholder}
                         multiline
                     />
                     <TouchableOpacity
-                        style={styles.sendButton}
+                        style={[styles.sendButton, { backgroundColor: theme.primary }]}
                         onPress={handleAddComment}
                         disabled={commenting || !newComment.trim()}
                     >
@@ -191,7 +196,6 @@ const EmployeeIssueDetailsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -199,9 +203,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     backButton: {
         padding: 8,
@@ -209,7 +211,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
     },
     content: {
         padding: 24,
@@ -231,11 +232,9 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     dateText: {
-        color: '#8E8E93',
         fontSize: 14,
     },
     card: {
-        backgroundColor: '#FFF',
         borderRadius: 20,
         padding: 24,
         shadowColor: '#000',
@@ -247,7 +246,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#8E8E93',
         marginBottom: 8,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
@@ -258,71 +256,48 @@ const styles = StyleSheet.create({
     },
     value: {
         fontSize: 16,
-        color: '#1A1A1A',
         fontWeight: '500',
     },
     description: {
         fontSize: 16,
-        color: '#1A1A1A',
         lineHeight: 24,
     },
     divider: {
         height: 1,
-        backgroundColor: '#F0F0F0',
         marginVertical: 20,
     },
     commentBox: {
         padding: 12,
         borderRadius: 12,
         marginBottom: 12,
-    },
-    managerComment: {
-        backgroundColor: '#FFF9E6',
         borderLeftWidth: 4,
-        borderLeftColor: '#FFCC00',
-        alignSelf: 'flex-start',
-        width: '90%',
-    },
-    employeeComment: {
-        backgroundColor: '#E3F2FD',
-        borderRightWidth: 4,
-        borderRightColor: '#2196F3',
-        alignSelf: 'flex-end',
-        width: '90%',
     },
     commentAuthor: {
         fontSize: 12,
         fontWeight: '700',
         marginBottom: 4,
-        color: '#555',
     },
     commentText: {
         fontSize: 14,
-        color: '#333',
         lineHeight: 20,
     },
     commentDate: {
         fontSize: 10,
-        color: '#999',
         textAlign: 'right',
         marginTop: 4,
     },
     noCommentsText: {
         fontStyle: 'italic',
-        color: '#999',
         fontSize: 14,
     },
     inputWrapper: {
         padding: 16,
-        backgroundColor: '#FAFAFA',
     },
     inputContainer: {
         flexDirection: 'row',
-        backgroundColor: '#FFF',
         borderRadius: 24,
         padding: 4,
         borderWidth: 1,
-        borderColor: '#E5E5EA',
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
@@ -335,13 +310,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         fontSize: 16,
-        color: '#1A1A1A',
         maxHeight: 100,
     },
     sendButton: {
         width: 44,
         height: 44,
-        backgroundColor: '#007AFF',
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',

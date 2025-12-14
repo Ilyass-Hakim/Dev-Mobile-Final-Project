@@ -17,7 +17,11 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
 import { IssueService } from '../../services/IssueService';
 import { auth } from '../../config/firebase';
+import { useTheme } from '../../context/ThemeContext';
+import { StatusBar } from 'expo-status-bar';
+
 const ManagerIssueDetailsScreen = ({ route, navigation }) => {
+    const { theme, isDarkMode } = useTheme();
     const { issue: initialIssue } = route.params;
     const [issue, setIssue] = useState(initialIssue);
     const [currentStatus, setCurrentStatus] = useState(initialIssue.status);
@@ -75,12 +79,13 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-            <View style={styles.header}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+            <StatusBar style={isDarkMode ? "light" : "dark"} />
+            <View style={[styles.header, { backgroundColor: theme.headerBackground, borderBottomColor: theme.border }]}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#1A1A1A" />
+                    <Ionicons name="arrow-back" size={24} color={theme.text} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Manage Issue</Text>
+                <Text style={[styles.headerTitle, { color: theme.text }]}>Manage Issue</Text>
                 <View style={{ width: 40 }} />
             </View>
 
@@ -89,37 +94,24 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
                     <View style={[styles.largeBadge, { backgroundColor: getStatusColor(currentStatus) }]}>
                         <Text style={styles.largeBadgeText}>{currentStatus}</Text>
                     </View>
-                    <Text style={styles.dateText}>Reported on {new Date(issue.createdAt).toLocaleDateString()}</Text>
+                    <Text style={[styles.dateText, { color: theme.textSecondary }]}>Reported on {new Date(issue.createdAt).toLocaleDateString()}</Text>
                 </View>
 
-                <View style={styles.card}>
-                    <Text style={styles.label}>Category</Text>
+                <View style={[styles.card, { backgroundColor: theme.cardBackground }]}>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Category</Text>
                     <View style={styles.row}>
-                        <Ionicons name="pricetag" size={20} color="#666" style={{ marginRight: 8 }} />
-                        <Text style={styles.value}>{issue.category}</Text>
+                        <Ionicons name="pricetag" size={20} color={theme.textSecondary} style={{ marginRight: 8 }} />
+                        <Text style={[styles.value, { color: theme.text }]}>{issue.category}</Text>
                     </View>
 
                     <View style={styles.row}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Severity</Text>
-                            <Text style={styles.value}>{issue.severity || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Severity</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.severity || 'N/A'}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Priority</Text>
-                            <Text style={styles.value}>{issue.priority || 'N/A'}</Text>
-                        </View>
-                    </View>
-
-                    <View style={{ height: 16 }} />
-
-                    <View style={styles.row}>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Location</Text>
-                            <Text style={styles.value}>{issue.location || 'N/A'}</Text>
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Asset ID</Text>
-                            <Text style={styles.value}>{issue.assetId || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Priority</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.priority || 'N/A'}</Text>
                         </View>
                     </View>
 
@@ -127,67 +119,81 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
 
                     <View style={styles.row}>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Impact</Text>
-                            <Text style={styles.value}>{issue.impact || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Location</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.location || 'N/A'}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                            <Text style={styles.label}>Reproducibility</Text>
-                            <Text style={styles.value}>{issue.reproducibility || 'N/A'}</Text>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Asset ID</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.assetId || 'N/A'}</Text>
                         </View>
                     </View>
 
-                    <View style={styles.divider} />
+                    <View style={{ height: 16 }} />
 
-                    <Text style={styles.label}>Description</Text>
-                    <Text style={styles.description}>{issue.description}</Text>
+                    <View style={styles.row}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Impact</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.impact || 'N/A'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={[styles.label, { color: theme.textSecondary }]}>Reproducibility</Text>
+                            <Text style={[styles.value, { color: theme.text }]}>{issue.reproducibility || 'N/A'}</Text>
+                        </View>
+                    </View>
 
-                    <Text style={[styles.label, { marginTop: 16 }]}>Steps to Reproduce</Text>
-                    <Text style={styles.description}>{issue.stepsToReproduce || 'N/A'}</Text>
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-                    <Text style={[styles.label, { marginTop: 16 }]}>Expected Result</Text>
-                    <Text style={styles.description}>{issue.expectedResult || 'N/A'}</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Description</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.description}</Text>
 
-                    <View style={styles.divider} />
+                    <Text style={[styles.label, { marginTop: 16, color: theme.textSecondary }]}>Steps to Reproduce</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.stepsToReproduce || 'N/A'}</Text>
 
-                    <Text style={styles.label}>Reported By</Text>
-                    <Text style={styles.value}>{issue.userEmail || 'Unknown User'}</Text>
+                    <Text style={[styles.label, { marginTop: 16, color: theme.textSecondary }]}>Expected Result</Text>
+                    <Text style={[styles.description, { color: theme.text }]}>{issue.expectedResult || 'N/A'}</Text>
+
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
+
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Reported By</Text>
+                    <Text style={[styles.value, { color: theme.text }]}>{issue.userEmail || 'Unknown User'}</Text>
                     <View style={{ height: 8 }} />
-                    <Text style={styles.label}>Contact Info</Text>
-                    <Text style={styles.value}>{issue.contactPhone || 'N/A'} ({issue.bestTime || 'Anytime'})</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Contact Info</Text>
+                    <Text style={[styles.value, { color: theme.text }]}>{issue.contactPhone || 'N/A'} ({issue.bestTime || 'Anytime'})</Text>
 
-                    <View style={styles.divider} />
+                    <View style={[styles.divider, { backgroundColor: theme.border }]} />
 
-                    <Text style={styles.label}>Discussion</Text>
+                    <Text style={[styles.label, { color: theme.textSecondary }]}>Discussion</Text>
                     {issue.comments && issue.comments.length > 0 ? (
                         issue.comments.map((comment, index) => (
                             <View key={index} style={[
                                 styles.commentBox,
-                                comment.role === 'manager' ? styles.managerComment : styles.employeeComment
+                                { backgroundColor: comment.role === 'manager' ? `${theme.primary}20` : theme.badgeBackground },
+                                comment.role === 'manager' ? { borderRightColor: theme.primary } : { borderLeftColor: theme.textTertiary }
                             ]}>
-                                <Text style={styles.commentAuthor}>
+                                <Text style={[styles.commentAuthor, { color: theme.text }]}>
                                     {comment.role === 'manager' ? 'You' : (comment.authorName || 'Employee')}
                                 </Text>
-                                <Text style={styles.commentText}>{comment.text}</Text>
-                                <Text style={styles.commentDate}>
+                                <Text style={[styles.commentText, { color: theme.text }]}>{comment.text}</Text>
+                                <Text style={[styles.commentDate, { color: theme.textTertiary }]}>
                                     {new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </Text>
                             </View>
                         ))
                     ) : (
-                        <Text style={styles.noCommentsText}>No comments yet.</Text>
+                        <Text style={[styles.noCommentsText, { color: theme.textSecondary }]}>No comments yet.</Text>
                     )}
                 </View>
 
                 <View style={styles.managerSection}>
-                    <Text style={styles.sectionTitle}>Manage Status</Text>
+                    <Text style={[styles.sectionTitle, { color: theme.text }]}>Manage Status</Text>
                     <View style={styles.actionButtons}>
                         {['Open', 'In Progress', 'Resolved'].map((status) => (
                             <TouchableOpacity
                                 key={status}
                                 style={[
                                     styles.actionButton,
-                                    currentStatus === status && styles.activeActionButton,
-                                    { borderColor: getStatusColor(status) }
+                                    { backgroundColor: theme.cardBackground, borderColor: getStatusColor(status) },
+                                    currentStatus === status && { backgroundColor: theme.badgeBackground }
                                 ]}
                                 onPress={() => handleStatusUpdate(status)}
                                 disabled={updating || currentStatus === status}
@@ -198,7 +204,7 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
                                     <Text style={[
                                         styles.actionButtonText,
                                         { color: getStatusColor(status) },
-                                        currentStatus === status && styles.activeActionButtonText
+                                        currentStatus === status && { opacity: 0.5 }
                                     ]}>
                                         {status}
                                     </Text>
@@ -212,19 +218,19 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
-                style={styles.inputWrapper}
+                style={[styles.inputWrapper, { backgroundColor: theme.background }]}
             >
-                <View style={styles.inputContainer}>
+                <View style={[styles.inputContainer, { backgroundColor: theme.inputBackground }]}>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { color: theme.text }]}
                         placeholder="Add internal note or reply..."
                         value={newComment}
                         onChangeText={setNewComment}
-                        placeholderTextColor="#999"
+                        placeholderTextColor={theme.inputPlaceholder}
                         multiline
                     />
                     <TouchableOpacity
-                        style={styles.sendButton}
+                        style={[styles.sendButton, { backgroundColor: theme.primary }]}
                         onPress={handleAddComment}
                         disabled={commenting || !newComment.trim()}
                     >
@@ -243,7 +249,6 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
     },
     header: {
         flexDirection: 'row',
@@ -251,9 +256,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 16,
         paddingVertical: 12,
-        backgroundColor: '#FFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
     },
     backButton: {
         padding: 8,
@@ -261,7 +264,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
     },
     content: {
         padding: 24,
@@ -283,11 +285,9 @@ const styles = StyleSheet.create({
         color: '#FFF',
     },
     dateText: {
-        color: '#8E8E93',
         fontSize: 14,
     },
     card: {
-        backgroundColor: '#FFF',
         borderRadius: 20,
         padding: 24,
         shadowColor: '#000',
@@ -299,7 +299,6 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontWeight: '600',
-        color: '#8E8E93',
         marginBottom: 8,
         textTransform: 'uppercase',
         letterSpacing: 0.5,
@@ -310,58 +309,38 @@ const styles = StyleSheet.create({
     },
     value: {
         fontSize: 16,
-        color: '#1A1A1A',
         fontWeight: '500',
     },
     description: {
         fontSize: 16,
-        color: '#1A1A1A',
         lineHeight: 24,
     },
     divider: {
         height: 1,
-        backgroundColor: '#F0F0F0',
         marginVertical: 20,
     },
     commentBox: {
         padding: 12,
         borderRadius: 12,
         marginBottom: 12,
-    },
-    managerComment: {
-        backgroundColor: '#E3F2FD', // Blue for Manager (Self)
         borderRightWidth: 4,
-        borderRightColor: '#2196F3',
-        alignSelf: 'flex-end',
-        width: '90%',
-    },
-    employeeComment: {
-        backgroundColor: '#F5F5F5', // Gray for Employee (Other)
-        borderLeftWidth: 4,
-        borderLeftColor: '#9E9E9E',
-        alignSelf: 'flex-start',
-        width: '90%',
     },
     commentAuthor: {
         fontSize: 12,
         fontWeight: '700',
         marginBottom: 4,
-        color: '#555',
     },
     commentText: {
         fontSize: 14,
-        color: '#333',
         lineHeight: 20,
     },
     commentDate: {
         fontSize: 10,
-        color: '#999',
         textAlign: 'right',
         marginTop: 4,
     },
     noCommentsText: {
         fontStyle: 'italic',
-        color: '#999',
         fontSize: 14,
     },
     managerSection: {
@@ -370,7 +349,6 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 16,
     },
     actionButtons: {
@@ -384,27 +362,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#FFF',
-    },
-    activeActionButton: {
-        backgroundColor: '#F2F2F7',
     },
     actionButtonText: {
         fontSize: 14,
         fontWeight: '600',
     },
-    activeActionButtonText: {
-        opacity: 0.5
-    },
     inputWrapper: {
         padding: 16,
-        backgroundColor: '#FFF',
         borderTopWidth: 1,
-        borderTopColor: '#F0F0F0',
     },
     inputContainer: {
         flexDirection: 'row',
-        backgroundColor: '#F2F2F7',
         borderRadius: 24,
         padding: 4,
         alignItems: 'center',
@@ -414,13 +382,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 10,
         fontSize: 16,
-        color: '#1A1A1A',
         maxHeight: 100,
     },
     sendButton: {
         width: 44,
         height: 44,
-        backgroundColor: '#007AFF',
         borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',

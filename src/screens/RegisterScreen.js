@@ -11,11 +11,13 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
     ScrollView,
+    StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth } from "../config/firebase";
 import { UserService } from '../services/UserService';
+import { useTheme } from '../context/ThemeContext';
 
 const RegisterScreen = ({ navigation }) => {
     const [fullName, setFullName] = useState('');
@@ -23,6 +25,7 @@ const RegisterScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { theme, isDarkMode } = useTheme();
 
     const handleRegister = async () => {
         if (!fullName || !email || !password || !confirmPassword) {
@@ -68,7 +71,8 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+            <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={styles.keyboardView}
@@ -80,17 +84,17 @@ const RegisterScreen = ({ navigation }) => {
                     >
                         <View style={styles.inner}>
                             <View style={styles.headerContainer}>
-                                <Text style={styles.title}>Create Account</Text>
-                                <Text style={styles.subtitle}>Join us to start reporting issues</Text>
+                                <Text style={[styles.title, { color: theme.text }]}>Create Account</Text>
+                                <Text style={[styles.subtitle, { color: theme.textSecondary }]}>Join us to start reporting issues</Text>
                             </View>
 
                             <View style={styles.formContainer}>
                                 <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Full Name</Text>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Full Name</Text>
                                     <TextInput
-                                        style={styles.input}
+                                        style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                         placeholder="Enter your full name"
-                                        placeholderTextColor="#A0A0A0"
+                                        placeholderTextColor={theme.inputPlaceholder}
                                         value={fullName}
                                         onChangeText={setFullName}
                                         autoCapitalize="words"
@@ -98,11 +102,11 @@ const RegisterScreen = ({ navigation }) => {
                                 </View>
 
                                 <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Email</Text>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Email</Text>
                                     <TextInput
-                                        style={styles.input}
+                                        style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                         placeholder="Enter your email"
-                                        placeholderTextColor="#A0A0A0"
+                                        placeholderTextColor={theme.inputPlaceholder}
                                         value={email}
                                         onChangeText={setEmail}
                                         keyboardType="email-address"
@@ -111,11 +115,11 @@ const RegisterScreen = ({ navigation }) => {
                                 </View>
 
                                 <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Password</Text>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Password</Text>
                                     <TextInput
-                                        style={styles.input}
+                                        style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                         placeholder="Create a password"
-                                        placeholderTextColor="#A0A0A0"
+                                        placeholderTextColor={theme.inputPlaceholder}
                                         value={password}
                                         onChangeText={setPassword}
                                         secureTextEntry
@@ -123,11 +127,11 @@ const RegisterScreen = ({ navigation }) => {
                                 </View>
 
                                 <View style={styles.inputContainer}>
-                                    <Text style={styles.inputLabel}>Confirm Password</Text>
+                                    <Text style={[styles.inputLabel, { color: theme.text }]}>Confirm Password</Text>
                                     <TextInput
-                                        style={styles.input}
+                                        style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.inputBorder, color: theme.inputText }]}
                                         placeholder="Confirm your password"
-                                        placeholderTextColor="#A0A0A0"
+                                        placeholderTextColor={theme.inputPlaceholder}
                                         value={confirmPassword}
                                         onChangeText={setConfirmPassword}
                                         secureTextEntry
@@ -135,7 +139,7 @@ const RegisterScreen = ({ navigation }) => {
                                 </View>
 
                                 <TouchableOpacity
-                                    style={styles.button}
+                                    style={[styles.button, { backgroundColor: theme.primary }]}
                                     onPress={handleRegister}
                                     disabled={loading}
                                 >
@@ -147,9 +151,9 @@ const RegisterScreen = ({ navigation }) => {
                                 </TouchableOpacity>
 
                                 <View style={styles.footer}>
-                                    <Text style={styles.footerText}>Already have an account? </Text>
+                                    <Text style={[styles.footerText, { color: theme.textSecondary }]}>Already have an account? </Text>
                                     <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                        <Text style={styles.footerLink}>Sign In</Text>
+                                        <Text style={[styles.footerLink, { color: theme.primary }]}>Sign In</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
@@ -164,7 +168,6 @@ const RegisterScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFFFFF',
     },
     keyboardView: {
         flex: 1,
@@ -183,12 +186,10 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#1A1A1A',
         marginBottom: 8,
     },
     subtitle: {
         fontSize: 16,
-        color: '#666666',
         lineHeight: 24,
     },
     formContainer: {
@@ -200,26 +201,20 @@ const styles = StyleSheet.create({
     inputLabel: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#1A1A1A',
         marginBottom: 8,
     },
     input: {
         height: 50,
-        backgroundColor: '#F7F7F7',
         borderRadius: 12,
         paddingHorizontal: 16,
         fontSize: 16,
-        color: '#1A1A1A',
         borderWidth: 1,
-        borderColor: '#E0E0E0',
     },
     button: {
         height: 56,
-        backgroundColor: '#007AFF', // Using same primary color
         borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#007AFF',
         shadowOffset: {
             width: 0,
             height: 4,
@@ -242,11 +237,9 @@ const styles = StyleSheet.create({
     },
     footerText: {
         fontSize: 14,
-        color: '#666666',
     },
     footerLink: {
         fontSize: 14,
-        color: '#007AFF',
         fontWeight: '700',
     },
 });
