@@ -99,15 +99,61 @@ const ManagerIssueDetailsScreen = ({ route, navigation }) => {
                         <Text style={styles.value}>{issue.category}</Text>
                     </View>
 
+                    <View style={styles.row}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Severity</Text>
+                            <Text style={styles.value}>{issue.severity || 'N/A'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Priority</Text>
+                            <Text style={styles.value}>{issue.priority || 'N/A'}</Text>
+                        </View>
+                    </View>
+
+                    <View style={{ height: 16 }} />
+
+                    <View style={styles.row}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Location</Text>
+                            <Text style={styles.value}>{issue.location || 'N/A'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Asset ID</Text>
+                            <Text style={styles.value}>{issue.assetId || 'N/A'}</Text>
+                        </View>
+                    </View>
+
+                    <View style={{ height: 16 }} />
+
+                    <View style={styles.row}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Impact</Text>
+                            <Text style={styles.value}>{issue.impact || 'N/A'}</Text>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.label}>Reproducibility</Text>
+                            <Text style={styles.value}>{issue.reproducibility || 'N/A'}</Text>
+                        </View>
+                    </View>
+
                     <View style={styles.divider} />
 
                     <Text style={styles.label}>Description</Text>
                     <Text style={styles.description}>{issue.description}</Text>
 
+                    <Text style={[styles.label, { marginTop: 16 }]}>Steps to Reproduce</Text>
+                    <Text style={styles.description}>{issue.stepsToReproduce || 'N/A'}</Text>
+
+                    <Text style={[styles.label, { marginTop: 16 }]}>Expected Result</Text>
+                    <Text style={styles.description}>{issue.expectedResult || 'N/A'}</Text>
+
                     <View style={styles.divider} />
 
                     <Text style={styles.label}>Reported By</Text>
                     <Text style={styles.value}>{issue.userEmail || 'Unknown User'}</Text>
+                    <View style={{ height: 8 }} />
+                    <Text style={styles.label}>Contact Info</Text>
+                    <Text style={styles.value}>{issue.contactPhone || 'N/A'} ({issue.bestTime || 'Anytime'})</Text>
 
                     <View style={styles.divider} />
 
